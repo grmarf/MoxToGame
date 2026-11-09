@@ -1,0 +1,24 @@
+--- /tmp/origk/mox_h/src/core/state-based-actions.js	2026-09-04 06:33:14.000000000 +0000
++++ src/core/state-based-actions.js	2026-09-04 12:55:07.584785852 +0000
+@@ -124,8 +124,19 @@
+       for (const perm of state[side].battlefield) {
+         if (!String(perm.type || '').includes('Creature')) continue;
+         const effectiveToughness = this.#effectiveToughness(state, perm);
+-        if (effectiveToughness <= 0 || ((perm.damageMarked || 0) >= effectiveToughness && !perm.regenShield)) {
+-          if (perm.regenShield) { perm.regenShield = false; perm.damageMarked = 0; perm.tapped = true; events.push({ type:'regenerationUsed', permanent:perm, side, reason:'regenerationShield' }); } else toDestroy.push(perm);
++        if (effectiveToughness <= 0) {
++          // 704.5f: regeneration cannot replace death from 0 or less toughness.
++          toDestroy.push(perm);
++        } else if ((perm.damageMarked || 0) >= effectiveToughness) {
++          // 704.5g: regeneration may replace lethal damage.
++          if (perm.regenShield) {
++            perm.regenShield = false;
++            perm.damageMarked = 0;
++            perm.tapped = true;
++            events.push({ type:'regenerationUsed', permanent:perm, side, reason:'regenerationShield' });
++          } else {
++            toDestroy.push(perm);
++          }
+         }
+       }
+       for (const perm of toDestroy) {

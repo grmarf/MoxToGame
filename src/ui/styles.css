@@ -1,0 +1,195 @@
+:root{
+  --bg:#1a1a2e;--bg2:#16213e;--bg3:#0f3460;--gold:#ffd700;--text:#e0e0e0;--text2:#aaa;
+  --card-bg:#2a2a2a;--border:#444;--red:#ef5350;--blue:#42a5f5;--green:#66bb6a;--black:#616161;--white:#fff9c4;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,var(--bg) 0%,var(--bg2) 50%,var(--bg3) 100%);color:var(--text);min-height:100vh;}
+.container{max-width:1800px;margin:0 auto;padding:10px;}
+.header{text-align:center;padding:12px;background:rgba(0,0,0,.5);border-radius:10px;margin-bottom:10px;border:1px solid var(--gold);}
+.header h1{font-size:1.8em;color:var(--gold);text-shadow:2px 2px 4px rgba(0,0,0,.5);}
+.header .subtitle{color:var(--text2);font-style:italic;font-size:.85em;}
+.main-content{display:grid;grid-template-columns:380px 1fr;gap:10px;}
+.sidebar,.game-area{background:rgba(0,0,0,.7);border-radius:10px;padding:15px;border:1px solid var(--border);max-height:calc(100vh - 110px);overflow-y:auto;}
+.tab-buttons{display:flex;gap:5px;margin-bottom:10px;}
+.tab-button{padding:8px 15px;background:#333;border:1px solid #555;color:#fff;border-radius:5px;cursor:pointer;font-size:.9em;}
+.tab-button.active{background:var(--gold);color:#000;border-color:var(--gold);}
+.card-search{width:100%;padding:8px;background:#222;border:1px solid var(--border);color:#fff;border-radius:5px;margin-bottom:10px;font-size:.9em;}
+.card-list{max-height:300px;overflow-y:auto;margin-bottom:10px;}
+.card-item{padding:8px;background:var(--card-bg);border:1px solid var(--border);margin-bottom:3px;border-radius:5px;cursor:pointer;font-size:.85em;}
+.card-item:hover{background:#3a3a3a;border-color:var(--gold);}
+.mana-symbol{display:inline-block;width:16px;height:16px;border-radius:50%;margin:0 1px;text-align:center;font-size:10px;line-height:16px;font-weight:bold;}
+.mana-w{background:var(--white);color:#000;} .mana-u{background:var(--blue);color:#fff;}
+.mana-b{background:var(--black);color:#fff;} .mana-r{background:var(--red);color:#fff;}
+.mana-g{background:var(--green);color:#fff;} .mana-c{background:#bdbdbd;color:#000;}
+.mana-x{background:#888;color:#fff;}
+.btn{padding:8px 16px;border:none;border-radius:5px;cursor:pointer;font-weight:bold;font-size:.9em;}
+.btn-primary{background:var(--gold);color:#000;} .btn-success{background:var(--green);color:#fff;}
+.btn-danger{background:var(--red);color:#fff;} .btn-info{background:var(--blue);color:#fff;}
+.btn-small{padding:5px 10px;font-size:.8em;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.deck-stats{margin-top:10px;padding:10px;background:#222;border-radius:8px;font-size:.9em;}
+.mana-curve{display:flex;align-items:flex-end;height:60px;gap:3px;margin-top:8px;}
+.mana-bar{flex:1;background:var(--gold);border-radius:2px 2px 0 0;min-width:15px;}
+.mana-bar-label{text-align:center;color:var(--text2);font-size:.7em;}
+.battlefield{margin-bottom:15px;}
+.battlefield h3{color:var(--gold);margin-bottom:8px;font-size:1em;}
+.permanent-card{display:inline-block;padding:6px;margin:3px;background:var(--card-bg);border:1px solid var(--border);border-radius:5px;font-size:.75em;cursor:pointer;vertical-align:top;width:105px;min-height:90px;}
+.permanent-card:hover{border-color:var(--gold);}
+.permanent-card.tapped{opacity:.5;transform:rotate(6deg);}
+.permanent-card.selected{border-color:var(--blue);box-shadow:0 0 10px rgba(66,165,245,.6);}
+.permanent-card.attacking{border-color:var(--red);box-shadow:0 0 8px rgba(239,83,80,.6);}
+.permanent-card.blocking{border-color:var(--green);box-shadow:0 0 8px rgba(102,187,106,.6);}
+.permanent-card.blockable-target{border-color:var(--gold);}
+.permanent-card.summoning-sick{border-color:#ff9800;border-style:dashed;}
+.perm-kw{color:#9fd3ff;font-size:.7em;}
+.hand-card{display:inline-block;padding:6px;margin:2px;background:var(--card-bg);border:1px solid var(--border);border-radius:5px;font-size:.72em;cursor:pointer;width:98px;min-height:78px;vertical-align:top;}
+.hand-card:hover{border-color:var(--gold);transform:translateY(-4px);}
+.hand-card.playable{border-color:var(--green);}
+.hand-card.selected{border-color:var(--blue);box-shadow:0 0 8px rgba(66,165,245,.6);}
+.game-log{max-height:150px;overflow-y:auto;background:#111;padding:8px;border-radius:8px;margin-top:10px;font-family:'Courier New',monospace;font-size:.75em;}
+.log-entry{padding:2px 4px;border-bottom:1px solid #222;}
+.log-player{color:var(--blue);} .log-ai{color:var(--red);} .log-system{color:var(--gold);}
+.zone-tabs{display:flex;gap:4px;margin:8px 0;}
+.zone-tab{padding:4px 10px;background:#333;border:1px solid #555;color:#fff;border-radius:4px;cursor:pointer;font-size:.75em;}
+.zone-tab.active{background:var(--gold);color:#000;border-color:var(--gold);}
+.zone-content{background:rgba(0,0,0,.3);border-radius:6px;padding:8px;max-height:120px;overflow-y:auto;}
+.zone-content .card-mini{display:inline-block;padding:4px 6px;margin:2px;background:var(--card-bg);border:1px solid var(--border);border-radius:3px;font-size:.65em;}
+.stats-panel{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+.stat-box{padding:10px;background:#2a2a2a;border-radius:8px;border:1px solid var(--border);text-align:center;}
+.stat-label{color:var(--text2);font-size:.8em;} .stat-value{font-size:1.3em;color:var(--gold);font-weight:bold;}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);z-index:1000;}
+.modal.show{display:flex;align-items:center;justify-content:center;}
+.modal-content{background:#1a1a2e;padding:20px;border-radius:10px;border:2px solid var(--gold);max-width:520px;width:90%;max-height:80vh;overflow-y:auto;}
+.modal-content h3{color:var(--gold);margin-bottom:10px;}
+.target-option{padding:8px;margin:4px 0;background:#2a2a2a;border:1px solid var(--border);border-radius:5px;cursor:pointer;}
+.target-option:hover{border-color:var(--gold);}
+.color-choice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0;}
+.color-choice-btn{padding:10px;border:2px solid var(--border);border-radius:8px;cursor:pointer;font-weight:bold;font-size:1.1em;text-align:center;transition:all .2s;}
+.color-choice-btn:hover{transform:scale(1.05);border-color:var(--gold);}
+.color-choice-btn.W{background:var(--white);color:#000;}
+.color-choice-btn.U{background:var(--blue);color:#fff;}
+.color-choice-btn.B{background:var(--black);color:#fff;}
+.color-choice-btn.R{background:var(--red);color:#fff;}
+.color-choice-btn.G{background:var(--green);color:#fff;}
+.color-choice-btn.C{background:#bdbdbd;color:#000;}
+select,input[type=range]{width:100%;padding:8px;background:#222;border:1px solid var(--border);color:#fff;border-radius:5px;font-size:.9em;}
+.section-title{color:var(--gold);margin:10px 0 5px;font-size:.95em;border-bottom:1px solid var(--border);padding-bottom:3px;}
+.life-total{font-size:1.6em;font-weight:bold;color:var(--gold);}
+.phase-indicator{display:flex;gap:4px;flex-wrap:wrap;margin:8px 0;font-size:.7em;}
+.phase-chip{padding:3px 7px;background:#333;border-radius:10px;color:#888;}
+.phase-chip.active{background:var(--gold);color:#000;font-weight:bold;}
+.player-row{display:flex;justify-content:space-between;align-items:center;padding:8px;background:rgba(0,0,0,.4);border-radius:8px;margin-bottom:6px;}
+.mana-pool-display{font-size:.8em;margin-top:4px;}
+.hint{color:var(--text2);font-size:.75em;font-style:italic;margin:4px 0;}
+.notice{background:#3a2f00;border:1px solid var(--gold);padding:6px;border-radius:6px;font-size:.75em;margin-bottom:8px;}
+.stack-zone{display:none;background:rgba(0,0,0,.5);border:2px solid var(--gold);border-radius:8px;padding:8px;margin:8px 0;}
+.stack-zone.active{display:block;}
+.stack-item{padding:4px 6px;background:#222;border-radius:5px;margin-bottom:3px;font-size:.8em;}
+.stack-item.top{border:1px solid var(--gold);}
+/* V8.14 — Turn UI */
+.turn-ui {
+  background: #1a1a2e;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 8px 0;
+  color: #eee;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.turn-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.turn-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 100px;
+}
+
+.turn-number {
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffd700;
+}
+
+.turn-owner {
+  font-size: 12px;
+  color: #aaa;
+}
+
+.phase-track {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+  justify-content: center;
+}
+
+.phase-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  background: #333;
+  border: 2px solid #555;
+  transition: all 0.3s ease;
+  cursor: default;
+}
+
+.phase-done {
+  background: #2d5a27;
+  border-color: #4caf50;
+  opacity: 0.6;
+}
+
+.phase-active {
+  background: #ff9800;
+  border-color: #ffc107;
+  transform: scale(1.2);
+  box-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
+}
+
+.phase-pending {
+  background: #333;
+  border-color: #555;
+  opacity: 0.4;
+}
+
+.phase-flash {
+  animation: phaseFlash 0.5s ease;
+}
+
+@keyframes phaseFlash {
+  0% { transform: scale(1.2); box-shadow: 0 0 20px #fff; }
+  100% { transform: scale(1); box-shadow: none; }
+}
+
+.next-phase-btn {
+  background: #4a90d9;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.next-phase-btn:hover {
+  background: #357abd;
+}
+
+.next-phase-btn:disabled {
+  background: #555;
+  cursor: not-allowed;
+}
+
+.hidden{display:none!important}.card-slot,.permanent-slot,.card-item{display:block;width:100%;text-align:left;margin:3px 0;padding:7px;border:1px solid var(--border);background:#222;color:var(--text);border-radius:5px;cursor:pointer}.permanent-slot.tapped{transform:rotate(4deg);opacity:.75}.card-slot small,.permanent-slot small{display:block;color:var(--text2)}#player-hand,#ai-hand,#player-battlefield,#ai-battlefield{display:flex;flex-wrap:wrap;gap:5px}#player-hand .card-slot,#ai-hand .card-slot{width:auto;min-width:120px}.fatal-error{white-space:pre-wrap;color:#f66}
+.card-item.unavailable{opacity:.55;cursor:not-allowed;}
+.card-item small{display:block;color:var(--text2);}

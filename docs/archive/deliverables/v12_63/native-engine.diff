@@ -1,0 +1,150 @@
+--- /tmp/orig63/src/core/native-engine.js	2026-09-04 12:59:23.000000000 +0000
++++ /mnt/data/work63/src/core/native-engine.js	2026-09-06 18:19:52.578421641 +0000
+@@ -16,12 +16,87 @@
+ import { normalizeCard, createPermanent } from './card-runtime.js';
+ import { rngClock } from './rng-clock-service.js';
+ import { getAbilities, isAbilityLegal, recordAbilityActivation } from './ability-model.js';
+-import { applyContinuousEffects } from './continuous-effects.js';
++import { applyContinuousEffects, calculateCharacteristics } from './continuous-effects.js';
+ import { phaseAllowsPriority } from './turn/turn-rules.js';
+ 
+ /**
+  * Native game engine.
+  */
++
++/**
++ * Generic permanent-target restriction matcher. It deliberately evaluates
++ * effective characteristics through the centralized continuous-effect
++ * pipeline so type-changing effects are respected at target-validation time.
++ *
++ * @param {GameState} state
++ * @param {Object} perm
++ * @param {string|undefined} targetRestriction
++ * @param {Object|null} combatState
++ * @param {'player'|'ai'} [controller]
++ * @returns {boolean}
++ */
++export function matchesTargetRestriction(state, perm, targetRestriction, combatState = null, controller = null) {
++  if (!perm) return false;
++  const restriction = String(targetRestriction || '');
++  const chars = calculateCharacteristics(state, perm);
++  const type = String(chars.type || '');
++  const isCreature = /\bCreature\b/i.test(type);
++  const isLand = /\bLand\b/i.test(type);
++  const isArtifact = /\bArtifact\b/i.test(type);
++  const isEnchantment = /\bEnchantment\b/i.test(type);
++
++  switch (restriction) {
++    case 'anyPermanent':
++    case 'permanent':
++      return true;
++    case 'creature':
++    case 'enchantedCreature':
++      return isCreature;
++    case 'land':
++      return isLand;
++    case 'artifact':
++      return isArtifact;
++    case 'artifactOrEnchantment':
++      return isArtifact || isEnchantment;
++    case 'attackingCreature':
++      return isCreature && !!combatState?.attackers?.some(p => p?.uid === perm.uid);
++    case 'attackingOrBlockingCreature': {
++      if (!isCreature) return false;
++      if (combatState?.attackers?.some(p => p?.uid === perm.uid)) return true;
++      return Object.values(combatState?.blockers || {}).some(blockers =>
++        Array.isArray(blockers) && blockers.some(p => p?.uid === perm.uid)
++      );
++    }
++    // Other target domains: only the restrictions that explicitly admit a
++    // permanent are accepted here. Player/stack/library/graveyard domains are
++    // validated separately by #isLegalTarget.
++    case 'anyTarget':
++    case 'permanentOrSpell':
++      return true;
++    case 'opponentsCreature':
++    case 'opponentsCreatures': {
++      if (!isCreature || !controller) return false;
++      const opponent = controller === 'player' ? 'ai' : 'player';
++      return state?.[opponent]?.battlefield?.some(p => p?.uid === perm.uid) || perm.controller === opponent;
++    }
++    case 'killer':
++    case 'enchanted':
++      return true;
++    case 'anyCard':
++    case 'player':
++    case 'self':
++    case 'opponent':
++    case 'spellOnStack':
++    case 'creatureCardInGraveyard':
++    case 'creatureCardInOwnGraveyard':
++      return false;
++    default:
++      // Unknown restrictions must not silently widen a permanent target to
++      // every permanent. They remain rejected until explicitly classified.
++      return false;
++  }
++}
++
+ export class NativeEngine {
+   /**
+    * @param {Object} deps
+@@ -417,12 +492,54 @@
+   }
+ 
+   #isLegalTarget(effect, controller, targetInfo) {
+-    // Effets ciblant explicitement un joueur (ou anyTarget qui inclut les joueurs)
+-    if ((effect.target === 'player' || effect.target === 'anyTarget') && targetInfo?.kind === 'player') return true;
+-    const candidates = this.getValidTargets(effect.type === 'damage' && effect.target === 'anyTarget' ? 'anyTarget' : effect.type, controller);
+     if (!targetInfo) return !this.needsTarget(effect.type);
++
++    const restriction = effect?.target;
++
++    // Non-permanent target domains are validated here before consulting the
++    // broad permanent candidate list. These forms are already represented by
++    // normalized target objects elsewhere in the engine, so keep their
++    // validation generic rather than tying it to individual cards.
++    if (targetInfo.kind === 'player') {
++      if (restriction === 'anyTarget' || restriction === 'player') return true;
++      if (restriction === 'self') return targetInfo.side === controller;
++      if (restriction === 'opponent') return targetInfo.side === (controller === 'player' ? 'ai' : 'player');
++      return false;
++    }
++    if (targetInfo.kind === 'stackItem') {
++      if (restriction && !['spellOnStack', 'permanentOrSpell'].includes(restriction)) return false;
++      const id = targetInfo.id || targetInfo.uid || targetInfo;
++      return this.stack.items.some(item => item.id === id);
++    }
++    if (targetInfo.kind === 'libraryCard') {
++      if (restriction !== 'anyCard') return false;
++      const uid = targetInfo.uid || targetInfo.id || targetInfo;
++      return [...this._state.player.library, ...this._state.ai.library].some(card => card.uid === uid || card.id === uid);
++    }
++    if (targetInfo.kind === 'graveyardCard') {
++      if (!['creatureCardInGraveyard', 'creatureCardInOwnGraveyard'].includes(restriction)) return false;
++      const uid = targetInfo.uid || targetInfo.id || targetInfo;
++      const zones = restriction === 'creatureCardInOwnGraveyard'
++        ? [this._state[controller].graveyard]
++        : [this._state.player.graveyard, this._state.ai.graveyard];
++      return zones.flat().some(card => (card.uid === uid || card.id === uid) && /\bCreature\b/i.test(String(card.type || '')));
++    }
++    if (targetInfo.kind !== 'permanent') return false;
++
++    const candidates = this.getValidTargets(effect.type === 'damage' && restriction === 'anyTarget' ? 'anyTarget' : effect.type, controller);
+     const uid = targetInfo.uid || targetInfo.id || targetInfo;
+-    return candidates.some(t => t === targetInfo || t.uid === uid || t.id === uid || (t.kind === targetInfo.kind && t.side === targetInfo.side));
++    const candidate = candidates.find(t =>
++      t === targetInfo ||
++      (uid != null && (t.uid === uid || t.id === uid)) ||
++      (targetInfo.perm && t.perm && (t.perm === targetInfo.perm || (targetInfo.perm.uid != null && t.perm.uid === targetInfo.perm.uid) || (targetInfo.perm.objectId != null && t.perm.objectId === targetInfo.perm.objectId))) ||
++      (targetInfo.side != null && t.kind === targetInfo.kind && t.side === targetInfo.side)
++    );
++    if (!candidate) return false;
++    // Preserve the historical candidate semantics when an effect has no
++    // target restriction at all. The new matcher is only authoritative when
++    // effect.target is explicitly declared.
++    if (!restriction) return true;
++    return matchesTargetRestriction(this._state, candidate.perm || targetInfo.perm, restriction, this.combat?.combat, controller);
+   }
+ 
+   #normalizeTarget(targetInfo, controller) {

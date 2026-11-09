@@ -1,0 +1,77 @@
+--- /tmp/base55/src/core/native-engine.js	2026-09-04 11:28:00.000000000 +0000
++++ src/core/native-engine.js	2026-09-04 12:59:23.228860939 +0000
+@@ -344,6 +344,53 @@
+     return item;
+   }
+ 
++  #resolveManaAbility(ability, permanent, controller) {
++    const side = this._state[controller];
++    const rawMana = permanent.tapAbility || null;
++    const effect = rawMana
++      ? { type: 'mana', color: (rawMana.produces === 'any' || rawMana.chooseColorAmount) ? 'any' : (rawMana.produces || undefined), amount: rawMana.chooseColorAmount || 1 }
++      : ability.effect;
++    if(!effect?.type || effect.type !== 'mana') throw new Error('Capacité de mana invalide.');
++
++    const cost = {
++      mana: ability.costSpec?.mana || (typeof ability.cost === 'string' ? ability.cost : ''),
++      tap: !!ability.tap,
++      sacrifice: !!rawMana?.sacrifice,
++    };
++    this.costService.pay(controller, cost, {controller, permanent});
++
++    const addMana = (resolvedEffect) => {
++      const amount = Math.max(1, Number(resolvedEffect.amount ?? 1));
++      if(!Number.isFinite(amount)) throw new Error('Quantité de mana invalide.');
++      const color = resolvedEffect.color || 'C';
++      if(!['W','U','B','R','G','C'].includes(color)) throw new Error('Mana produit invalide.');
++      for(let i=0;i<amount;i++) side.mana[color] = (side.mana[color] || 0) + 1;
++      gameEvents.emit({type:'manaAdded',side:controller,color,amount,permanent});
++      recordAbilityActivation(permanent, ability);
++      return { manaAbility:true, permanent, color, amount };
++    };
++
++    if(effect.color === 'any') {
++      const spec = { type:'manaColor', controller, options:['W','U','B','R','G'], min:1, max:1, prompt:'Choisissez une couleur de mana.', defaultValue:'W' };
++      const chosen = this.choiceService ? this.choiceService.request(spec) : spec.defaultValue;
++      if(chosen != null) return addMana({...effect, color:chosen});
++      const pending = this.choiceService?.getPending?.();
++      if(pending) {
++        const originalResolve = pending._continuation;
++        pending._continuation = (value) => addMana({...effect, color:value});
++        return { manaAbility:true, permanent, pendingChoice:pending.id };
++      }
++      return { manaAbility:true, permanent, pendingChoice:true };
++    }
++
++    // Generic activated mana abilities use the same registered mana effect
++    // semantics, but resolve synchronously instead of entering the stack.
++    const normalized = {...effect};
++    if(normalized.amount === 'CC') normalized.amount = 2;
++    const color = normalized.color || 'C';
++    return addMana({...normalized, color});
++  }
++
+   /** Activate a canonical ability (M3). */
+   #activateAbility(permanentRef, abilityOrEffect, controller, targetInfo = null) {
+     const side=this._state[controller];
+@@ -353,18 +400,8 @@
+     const ability = abilityOrEffect?.kind ? abilityOrEffect : (abilityOrEffect?.effect ? abilityOrEffect : (abilityOrEffect?.type ? {effect:abilityOrEffect,cost:''} : null));
+     if(!ability) throw new Error('Capacité activée invalide.');
+     if(!isAbilityLegal(ability,{permanent,state:this._state,controller,canPay:(s,c,x)=>this.costService.canPay(controller,c,{controller,permanent,xValue:x}),xValue:0})) throw new Error('Capacité activée illégale.');
+-    if(ability.manaAbility && permanent.tapAbility) {
+-      const rawMana = permanent.tapAbility;
+-      const cost = { mana: ability.costSpec?.mana || '', tap: true, sacrifice: !!rawMana.sacrifice };
+-      this.costService.pay(controller, cost, {controller, permanent});
+-      const produced = String(rawMana.produces || permanent.produces || '');
+-      const amount = Math.max(1, Number(rawMana.chooseColorAmount || 1));
+-      const options = ['W','U','B','R','G','C'];
+-      let chosen = produced === 'any' ? (this.choose({type:'manaColor',controller,options}) || 'G') : produced[0];
+-      if(!options.includes(chosen) && produced !== 'any') throw new Error('Mana produit invalide.');
+-      for (let i=0;i<amount;i++) side.mana[chosen] = (side.mana[chosen] || 0) + 1;
+-      gameEvents.emit({type:'manaAdded',side:controller,color:chosen,amount,permanent});
+-      return { manaAbility:true, permanent, color:chosen, amount };
++    if(ability.manaAbility) {
++      return this.#resolveManaAbility(ability, permanent, controller);
+     }
+     if(!ability.effect?.type && !(ability.effects?.length)) throw new Error('Capacité activée sans effet.');
+     this.costService.pay(controller, { mana: ability.cost || '', tap: !!ability.tap }, {controller, permanent});

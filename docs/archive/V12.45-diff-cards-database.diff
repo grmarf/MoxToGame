@@ -1,0 +1,47 @@
+--- mox_orig/src/data/cards-database.js	2026-09-03 07:06:15.000000000 +0000
++++ mox/src/data/cards-database.js	2026-09-03 20:25:15.284791477 +0000
+@@ -335,7 +335,7 @@
+     "rarity": "Common",
+     "activated": [
+       {
+-        "cost": "{W}",
++        "cost": "{1}",
+         "tap": false,
+         "effect": {
+           "type": "preventNextDamageFromColor",
+@@ -366,7 +366,7 @@
+     "rarity": "Common",
+     "activated": [
+       {
+-        "cost": "{W}",
++        "cost": "{1}",
+         "tap": false,
+         "effect": {
+           "type": "preventNextDamageFromColor",
+@@ -397,7 +397,7 @@
+     "rarity": "Common",
+     "activated": [
+       {
+-        "cost": "{W}",
++        "cost": "{1}",
+         "tap": false,
+         "effect": {
+           "type": "preventNextDamageFromColor",
+@@ -428,7 +428,7 @@
+     "rarity": "Common",
+     "activated": [
+       {
+-        "cost": "{W}",
++        "cost": "{1}",
+         "tap": false,
+         "effect": {
+           "type": "preventNextDamageFromColor",
+@@ -459,7 +459,7 @@
+     "rarity": "Common",
+     "activated": [
+       {
+-        "cost": "{W}",
++        "cost": "{1}",
+         "tap": false,
+         "effect": {
+           "type": "preventNextDamageFromColor",

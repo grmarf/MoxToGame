@@ -1,0 +1,45 @@
+--- mox_orig/src/core/effects/atomic-effects.js	2026-09-03 07:06:15.000000000 +0000
++++ mox/src/core/effects/atomic-effects.js	2026-09-03 20:26:00.462464456 +0000
+@@ -174,8 +174,40 @@
+   });
+ 
+   registry.register('mana', (ctx, effect) => {
+-    ctx.api.state[ctx.controllerKey].mana[effect.color] = (ctx.api.state[ctx.controllerKey].mana[effect.color] || 0) + effect.amount;
+-    ctx.api.log(`+${effect.amount}{${effect.color}} ajouté.`, ctx.controllerKey);
++    const amount = Number(effect.amount || 0);
++    const addMana = (chosen, resumeCtx = ctx) => {
++      if (!['W','U','B','R','G'].includes(chosen)) return null;
++      const pool = resumeCtx.api.state[resumeCtx.controllerKey].mana;
++      pool[chosen] = (pool[chosen] || 0) + amount;
++      resumeCtx.api.log(`+${amount}{${chosen}} ajouté.`, resumeCtx.controllerKey);
++      return chosen;
++    };
++
++    // "any" is a real player choice, not a mana-pool key. Suspend the
++    // resolution when no synchronous chooser is available and resume it
++    // through the same continuation mechanism used by chooseColor/searchLibrary.
++    if (effect.color === 'any') {
++      const chosen = ctx.api.choose(
++        {
++          type: 'manaColor',
++          controller: ctx.controllerKey,
++          options: ['W','U','B','R','G'],
++          min: 1,
++          max: 1,
++          prompt: effect.prompt || 'Choisissez une couleur de mana.',
++          defaultValue: 'W',
++        },
++        addMana
++      );
++      if (chosen != null) return addMana(chosen);
++      return null;
++    }
++
++    // Fixed-color mana keeps the pre-existing synchronous behaviour.
++    const pool = ctx.api.state[ctx.controllerKey].mana;
++    pool[effect.color] = (pool[effect.color] || 0) + amount;
++    ctx.api.log(`+${amount}{${effect.color}} ajouté.`, ctx.controllerKey);
++    return effect.color;
+   });
+ 
+   registry.register('regenerateShield', (ctx) => {

@@ -1,0 +1,11 @@
+--- /mnt/data/mox_j/orig/mox_h/src/core/game-facade.js	2026-09-04 06:33:14.000000000 +0000
++++ src/core/game-facade.js	2026-09-04 12:49:13.591322301 +0000
+@@ -56,7 +56,7 @@
+     this.stateBasedActions = new StateBasedActions({ legacyCheck: null, zones: this.zones, choiceService: this.choices });
+     this.combat = new CombatService({ state: () => this.state, sba: this.stateBasedActions, replacements: this.replacements });
+     this.stack = new StackController({ ...common, effects, pushLegacy: null, resolveLegacy: null, zones: this.zones, replacements: this.replacements, choiceService: this.choices, subgames: this.subgames, combat: this.combat });
+-    this.turnManager = new TurnManager({ state: () => this.state, sba: this.stateBasedActions, combat: this.combat, startingPlayer: 'player', zones: this.zones });
++    this.turnManager = new TurnManager({ state: () => this.state, sba: this.stateBasedActions, combat: this.combat, startingPlayer: 'player', zones: this.zones, replacements: this.replacements });
+ 
+     this.engine = new NativeEngine({ stack: this.stack, combat: this.combat, sba: this.stateBasedActions, turnManager: this.turnManager, effects });
+     this.costs = new CostService({ getState: () => this.state, choose: spec => this.choices?.request(spec), zones: this.zones });

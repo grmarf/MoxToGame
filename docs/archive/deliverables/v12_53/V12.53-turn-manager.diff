@@ -1,0 +1,63 @@
+--- /mnt/data/mox_j/orig/mox_h/src/core/turn/turn-manager.js	2026-09-04 06:33:14.000000000 +0000
++++ src/core/turn/turn-manager.js	2026-09-04 12:49:54.810135519 +0000
+@@ -49,12 +49,13 @@
+    * @param {import('../triggers/trigger-engine.js').TriggerEngine} [deps.triggerEngine]
+    * @param {string} [deps.startingPlayer]
+    */
+-  constructor({ state, sba, combat, triggerEngine = null, startingPlayer = 'player', zones = null }) {
++  constructor({ state, sba, combat, triggerEngine = null, startingPlayer = 'player', zones = null, replacements = null }) {
+     this.getState = state;
+     this.sba = sba;
+     this.combat = combat;
+     this.triggerEngine = triggerEngine;
+     this.zones = zones;
++    this.replacements = replacements;
+     this.activePlayer = startingPlayer;
+     this.turnNumber = 1;
+     this.phaseIndex = 0;
+@@ -84,6 +85,10 @@
+   nextPhase() {
+     const state = this.getState();
+     this.sba.check(state);
++    this.#emptyManaPoolsAtBoundary(state);
++    // Mana burn can reduce a player to 0 or less life, so SBA must be
++    // re-checked before the phase transition proceeds.
++    this.sba.check(state);
+     let nextIndex = this.phaseIndex + 1;
+     let newTurn = false;
+     if (nextIndex >= PHASE_ORDER.length) {
+@@ -243,6 +248,25 @@
+     }
+   }
+ 
++  #emptyManaPoolsAtBoundary(state) {
++    for (const side of ['player', 'ai']) {
++      const amount = emptyManaPool(state[side]);
++      if (amount <= 0) continue;
++
++      if (this.replacements?.applyDamageToPlayer) {
++        this.replacements.applyDamageToPlayer(side, amount, {
++          color: null,
++          source: null,
++          meta: { manaBurn: true, reason: 'phaseBoundary' },
++        });
++      } else {
++        state[side].life -= amount;
++      }
++
++      gameEvents.emit({ type:'manaPoolEmptied', side, amount, reason:'phaseBoundary', manaBurn:true });
++    }
++  }
++
+   #runMain() {
+     // Main phase: player/AI can play lands, cast spells, activate abilities
+     // No automatic actions
+@@ -274,8 +298,6 @@
+       if (perm.damageMarked > 0) perm.damageMarked = 0;
+       if (perm.summoningSickness && perm.enteredTurn != null && perm.enteredTurn < this.turnNumber) perm.summoningSickness = false;
+     }
+-    const emptied = emptyManaPool(side);
+-    if (emptied) gameEvents.emit({type:'manaPoolEmptied', side:this.activePlayer, amount:emptied, reason:'cleanup'});
+     while (side.hand.length > 7) {
+       // ZoneManager.move() must see the card in its source zone; do not pop
+       // it before resolving the zone change.

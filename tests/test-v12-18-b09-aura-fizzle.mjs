@@ -1,0 +1,10 @@
+import assert from 'assert';
+import { GameFacade } from '../src/core/game-facade.js';
+const game = new GameFacade(); game.connect();
+const aura = { uid: 'a1', name: 'Pacifism', type: 'Enchantment — Aura', effect: { type: 'removeKeyword', keyword: 'attack' }, owner: 'player' };
+game.state.player.hand = [aura]; game.state.activePlayer = 'player';
+game.stack.pushSpell(aura, 'player', null);
+game.stack.resolveTop();
+assert.ok(!game.state.player.battlefield.some(p => p.name === 'Pacifism'), 'Bug 9: aura sans cible pas sur BF');
+assert.ok(game.state.player.graveyard.some(c => c.name === 'Pacifism'), 'Bug 9: aura fizzle au cimetière');
+console.log('Bug 9 PASS');

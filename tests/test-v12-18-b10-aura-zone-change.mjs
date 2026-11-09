@@ -1,0 +1,15 @@
+import assert from 'assert';
+import { GameFacade } from '../src/core/game-facade.js';
+const game = new GameFacade(); game.connect();
+const creature = { uid: 'c1', objectId: 'oc1', name: 'Bear', type: 'Creature', power: 2, toughness: 2, owner: 'player' };
+const aura = { uid: 'a1', name: 'Giant Growth Aura', type: 'Enchantment — Aura', effect: { type: 'pump', power: 3, toughness: 3 }, owner: 'player' };
+game.state.player.battlefield = [creature];
+const permCreature = game.zones.enterBattlefield(creature, 'player');
+const permAura = game.zones.enterBattlefield(aura, 'player');
+permAura.attachedTo = permCreature.uid;
+const exiled = game.zones.move(permCreature, 'exile', { toSide: 'player' });
+const returned = game.zones.move(exiled, 'battlefield', { toSide: 'player' });
+const auraNow = game.state.player.battlefield.find(p => p.name === 'Giant Growth Aura');
+assert.ok(auraNow, 'Bug 10: aura toujours sur le battlefield');
+assert.strictEqual(auraNow.attachedTo, returned.uid, 'Bug 10: aura suit le nouvel uid du permanent');
+console.log('Bug 10 PASS');

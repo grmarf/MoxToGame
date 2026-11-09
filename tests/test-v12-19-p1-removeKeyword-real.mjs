@@ -1,0 +1,10 @@
+import assert from 'assert';
+import { GameFacade } from '../src/core/game-facade.js';
+const game = new GameFacade(); game.connect();
+const perm = { uid: 'c1', name: 'Bear', type: 'Creature', power: 2, toughness: 2, controller: 'player', owner: 'player', keywords: ['flying'] };
+game.state.player.battlefield = [perm];
+const spell = { uid: 's1', name: 'Ground', type: 'Instant', effect: { type: 'removeKeyword', keyword: 'flying' }, owner: 'player' };
+game.stack.pushSpell(spell, 'player', { kind: 'permanent', uid: 'c1' });
+game.stack.resolveTop();
+assert.ok(!perm.keywords.includes('flying'), 'removeKeyword doit retirer le keyword du permanent réel');
+console.log('P1 removeKeyword PASS');

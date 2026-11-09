@@ -1,0 +1,18 @@
+--- /tmp/base55/src/data/cards-database.js	2026-09-04 10:03:51.000000000 +0000
++++ src/data/cards-database.js	2026-09-04 12:58:33.705718905 +0000
+@@ -6461,6 +6461,7 @@
+       {
+         "cost": "{3}",
+         "tap": true,
++        "manaAbility": true,
+         "effect": {
+           "type": "mana",
+           "color": "any",
+@@ -7261,6 +7262,7 @@
+       {
+         "cost": "",
+         "tap": true,
++        "manaAbility": true,
+         "effect": {
+           "type": "mana",
+           "amount": "CC"

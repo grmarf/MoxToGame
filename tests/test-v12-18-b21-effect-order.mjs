@@ -1,0 +1,11 @@
+import assert from 'assert';
+import { GameFacade } from '../src/core/game-facade.js';
+const game = new GameFacade(); game.connect();
+const spell = { uid: 's1', name: 'Act of Treason', type: 'Sorcery', effect: { type: 'stealCreatureUntilEnd' }, owner: 'player' };
+const target = { uid: 'c1', name: 'Bear', type: 'Creature', power: 2, toughness: 2, controller: 'ai', owner: 'ai' };
+game.state.ai.battlefield = [target];
+game.stack.pushSpell(spell, 'player', { kind: 'permanent', uid: 'c1' });
+game.stack.resolveTop();
+assert.ok(!game.state.ai.battlefield.some(p => p.uid === 'c1'), 'Bug 21: IA ne contrôle plus la créature');
+assert.ok(game.state.player.battlefield.some(p => p.uid === 'c1'), 'Bug 21: joueur contrôle la créature');
+console.log('Bug 21 PASS');

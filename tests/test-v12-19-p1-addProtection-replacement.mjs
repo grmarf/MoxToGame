@@ -1,0 +1,10 @@
+import assert from 'assert';
+import { GameFacade } from '../src/core/game-facade.js';
+const game = new GameFacade(); game.connect();
+const perm = { uid: 'c1', name: 'Bear', type: 'Creature', power: 2, toughness: 2, controller: 'player', owner: 'player' };
+game.state.player.battlefield = [perm];
+const spell = { uid: 's1', name: 'Protection Spell', type: 'Instant', effect: { type: 'addProtection', color: 'R' }, owner: 'player' };
+game.stack.pushSpell(spell, 'player', { kind: 'permanent', uid: 'c1' });
+game.stack.resolveTop();
+assert.ok(perm.protectionFrom?.includes('R'), 'addProtection doit modifier le permanent réel via findPermanent');
+console.log('P1 addProtection PASS');

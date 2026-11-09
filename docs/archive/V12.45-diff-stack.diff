@@ -1,0 +1,10 @@
+--- mox_orig/src/core/stack.js	2026-09-03 07:06:15.000000000 +0000
++++ mox/src/core/stack.js	2026-09-03 20:25:55.643595456 +0000
+@@ -415,6 +415,7 @@
+         defendingSide: stack.combat.combat.defendingSide,
+       } : null,
+       zones: stack.zones,
++      replacements: stack.replacements,
+       moveToZone: (obj, zone, opts={}) => stack.zones ? stack.zones.move(obj, zone, opts) : null,
+       preventDamage: (side, amount, color=null, source=null, meta={}) => stack.replacements?.preventDamage(side, amount, color, source, meta) || { prevented:0, remaining:amount },
+       replaceDamageLifeLoss: (side, amount, meta={}) => stack.replacements?.replaceDamageLifeLoss(side, amount, meta) || { replaced:false, loss:amount },

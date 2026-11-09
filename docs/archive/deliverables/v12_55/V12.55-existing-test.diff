@@ -1,0 +1,13 @@
+--- /tmp/base55/tests/test-v12-45-activated-choices-e2e.mjs	2026-09-04 06:35:41.000000000 +0000
++++ tests/test-v12-45-activated-choices-e2e.mjs	2026-09-04 12:58:53.302033775 +0000
+@@ -24,9 +24,7 @@
+   game.action('activateAbility', { permanent: prism, controller: 'player', abilityIndex: 0 });
+   assert.equal(game.state.player.mana.W, 0, 'Celestial Prism must pay {3} on activation');
+   assert.equal(prism.tapped, true, 'Celestial Prism must tap on activation');
+-  assert.equal(game.stack.size, 1, 'Celestial Prism ability must be on the stack');
+-
+-  game.dispatch('resolveStack', {}, 'player');
++  assert.equal(game.stack.size, 0, 'Celestial Prism mana ability must bypass the stack');
+   const pending = game.choices.getPending();
+   assert.ok(pending, 'Celestial Prism resolution must request a real choice');
+   assert.equal(pending.type, 'manaColor');

@@ -1,0 +1,137 @@
+--- /tmp/mox_base/src/core/ability-model.js	2026-09-04 06:33:14.000000000 +0000
++++ src/core/ability-model.js	2026-09-04 06:42:40.045537517 +0000
+@@ -17,6 +17,7 @@
+     description: raw.description || null,
+     layer: raw.layer ?? null, duration: raw.duration || null,
+     replacement: raw.replacement || null,
++    maxPerTurn: raw.maxPerTurn == null ? null : Math.max(0, Number(raw.maxPerTurn)),
+   });
+ }
+ 
+@@ -40,5 +41,17 @@
+   if (ability.controller && ability.controller !== controller) return false;
+   if (ability.tap && permanent?.tapped) return false;
+   if (ability.cost && !canPay(state[controller], ability.cost, xValue)) return false;
++  if (ability.maxPerTurn != null && permanent) {
++    const uses = Number(permanent.activationUsesThisTurn?.[ability.id] || 0);
++    if (uses >= ability.maxPerTurn) return false;
++  }
+   return true;
+ }
++
++export function recordAbilityActivation(permanent, ability) {
++  if (!permanent || !ability || ability.maxPerTurn == null) return;
++  if (!permanent.activationUsesThisTurn || typeof permanent.activationUsesThisTurn !== 'object') {
++    permanent.activationUsesThisTurn = Object.create(null);
++  }
++  permanent.activationUsesThisTurn[ability.id] = Number(permanent.activationUsesThisTurn[ability.id] || 0) + 1;
++}
+--- /tmp/mox_base/src/core/native-engine.js	2026-09-04 06:33:14.000000000 +0000
++++ src/core/native-engine.js	2026-09-04 06:42:40.664419825 +0000
+@@ -15,7 +15,7 @@
+ import { keywordsOf, hasKeyword } from './keywords.js';
+ import { normalizeCard, createPermanent } from './card-runtime.js';
+ import { rngClock } from './rng-clock-service.js';
+-import { getAbilities, isAbilityLegal } from './ability-model.js';
++import { getAbilities, isAbilityLegal, recordAbilityActivation } from './ability-model.js';
+ import { applyContinuousEffects } from './continuous-effects.js';
+ import { phaseAllowsPriority } from './turn/turn-rules.js';
+ 
+@@ -372,6 +372,7 @@
+     if(targetInfo && effect && !this.#isLegalTarget(effect,controller,targetInfo)) throw new Error('Cible illégale.');
+     targetInfo = this.#normalizeTarget(targetInfo, controller);
+     const item=this.stack.pushAbility(permanent,effect,controller,targetInfo);
++    recordAbilityActivation(permanent, ability);
+     gameEvents.emit({type:'abilityActivated',permanent,ability,controller,item});
+     // Activated abilities use the same response window as spells.
+     this.giveResponderPriority(controller === 'player' ? 'ai' : 'player');
+--- /tmp/mox_base/src/core/card-runtime.js	2026-09-04 06:33:14.000000000 +0000
++++ src/core/card-runtime.js	2026-09-04 06:41:54.940777063 +0000
+@@ -45,6 +45,7 @@
+     tempBuffs: [],
+     tempKeywords: [],
+     playedThisTurn: false,
++    activationUsesThisTurn: Object.create(null),
+     controller: c.controller || null,
+     owner: c.owner || null,
+   };
+--- /tmp/mox_base/src/core/turn/turn-rules.js	2026-09-04 06:33:14.000000000 +0000
++++ src/core/turn/turn-rules.js	2026-09-04 06:42:41.257114235 +0000
+@@ -9,7 +9,7 @@
+   if(!side?.mana) return 0;
+   let n=0; for(const k of Object.keys(side.mana)){ n += Number(side.mana[k]||0); side.mana[k]=0; } return n;
+ }
+-export function resetTurnCounters(side){ if(!side) return; side.landsPlayedThisTurn=0; side.mana={W:0,U:0,B:0,R:0,G:0,C:0}; side.hasDrawnThisTurn=false; }
++export function resetTurnCounters(side){ if(!side) return; side.landsPlayedThisTurn=0; side.mana={W:0,U:0,B:0,R:0,G:0,C:0}; side.hasDrawnThisTurn=false; for(const p of side.battlefield||[]){ p.activationUsesThisTurn=Object.create(null); } }
+ export function clearUntilCleanup(side){
+   for(const p of side?.battlefield||[]){
+     if(Array.isArray(p.tempBuffs)) p.tempBuffs.length=0;
+--- /tmp/mox_base/src/data/cards-database.js	2026-09-04 06:36:09.000000000 +0000
++++ src/data/cards-database.js	2026-09-04 06:42:07.542513108 +0000
+@@ -14400,6 +14400,18 @@
+     ],
+     "type": "Creature",
+     "rarity": "Common",
++    "activated": [
++      {
++        "cost": "{B}",
++        "tap": false,
++        "maxPerTurn": 2,
++        "effect": {
++          "type": "pumpSelf",
++          "power": 1,
++          "toughness": 0
++        }
++      }
++    ],
+     "text_fr": "Vol (Cette créature ne peut être bloquée que par des créatures avec le vol ou la portée.)\n{B} : Les Chauves-souris vampires gagnent +1/+0 jusqu'à la fin du tour. Ne jouez pas cette capacité plus de deux fois à chaque tour.",
+     "sets": [
+       "LEG"
+@@ -14411,7 +14423,7 @@
+     "isLand": false,
+     "isCreature": true,
+     "isPermanent": true,
+-    "effectStatus": "unimplemented",
++    "effectStatus": "implemented",
+     "subtype": "Bat",
+     "power": 0,
+     "toughness": 1,
+@@ -20383,6 +20395,18 @@
+     ],
+     "type": "Creature",
+     "rarity": "Uncommon",
++    "activated": [
++      {
++        "cost": "{R}",
++        "tap": false,
++        "maxPerTurn": 1,
++        "effect": {
++          "type": "pumpSelf",
++          "power": 1,
++          "toughness": 0
++        }
++      }
++    ],
+     "text_fr": "Vol. {R} : Cette créature gagne +1/+0 jusqu'à la fin du tour. N'activez cette capacité qu'une fois par tour.",
+     "sets": [
+       "DRK"
+@@ -20394,7 +20418,7 @@
+     "isLand": false,
+     "isCreature": true,
+     "isPermanent": true,
+-    "effectStatus": "unimplemented",
++    "effectStatus": "implemented",
+     "subtype": "Drake",
+     "power": 1,
+     "toughness": 2,
+--- /tmp/mox_base/tests/test-v12-4-legends-lot6.mjs	2026-09-04 06:33:14.000000000 +0000
++++ tests/test-v12-4-legends-lot6.mjs	2026-09-04 06:42:25.918818600 +0000
+@@ -18,7 +18,7 @@
+   const card = CARDS.find(c => c.name === name);
+   assert.ok(card, `LEG lot 6 missing: ${name}`);
+   assert.ok(card.sets?.includes('LEG'), `${name} missing LEG set membership`);
+-  if (name !== 'Wall of Dust' && name !== 'Wall of Opposition') assert.equal(card.effectStatus, 'unimplemented', `${name} must remain explicitly unimplemented in this data-only lot`);
++  if (!['Wall of Dust','Wall of Opposition','Vampire Bats'].includes(name)) assert.equal(card.effectStatus, 'unimplemented', `${name} must remain explicitly unimplemented in this data-only lot`);
+ }
+ 
+ const leg = CARDS.filter(c => c.sets?.includes('LEG'));

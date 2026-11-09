@@ -1,0 +1,113 @@
+--- /dev/null	2026-09-04 12:47:20.601926736 +0000
++++ tests/test-v12-53-mana-burn.mjs	2026-09-04 12:49:22.290326669 +0000
+@@ -0,0 +1,110 @@
++import assert from 'node:assert/strict';
++import { GameFacade } from '../src/core/game-facade.js';
++import { createPermanent } from '../src/core/card-runtime.js';
++import CARDS from '../src/data/cards-database.js';
++
++const card = name => CARDS.find(c => c.name === name);
++const freshGame = () => {
++  const g = new GameFacade().connect();
++  g.turnManager.gotoPhase('main1');
++  g.turnManager.phaseStarted = true;
++  g.state.phase = 'main1';
++  g.state.activePlayer = 'player';
++  g.turnManager.activePlayer = 'player';
++  g.state.priorityHolder = 'player';
++  g.turnManager.turnNumber = 1;
++  g.state.turnNumber = 1;
++  return g;
++};
++const add = (g, side, c) => {
++  const p = createPermanent({ ...c, owner: side, controller: side });
++  g.state[side].battlefield.push(p);
++  return p;
++};
++
++// 1. Unspent mana at a phase boundary burns one life per mana, for the active player.
++{
++  const g = freshGame();
++  const forest = add(g, 'player', card('Forest'));
++  const before = g.state.player.life;
++  g.dispatch('action', { action:'tapMana', data:{ permanent: forest, color:'G', controller:'player' } }, 'player');
++  g.state.player.mana.W = 2;
++  g.turnManager.nextPhase(); // main1 -> combatBegin
++  assert.equal(g.turnManager.phase, 'combatBegin');
++  assert.deepEqual(g.state.player.mana, { W:0,U:0,B:0,R:0,G:0,C:0 });
++  assert.equal(g.state.player.life, before - 3, '3 manas non dépensés infligent 3 blessures de mana burn.');
++}
++
++// 2. Fully spent mana causes no mana burn.
++{
++  const g = freshGame();
++  const forest = add(g, 'player', card('Forest'));
++  const before = g.state.player.life;
++  g.dispatch('action', { action:'tapMana', data:{ permanent: forest, color:'G', controller:'player' } }, 'player');
++  g.state.player.mana.G -= 1;
++  g.turnManager.nextPhase();
++  assert.equal(g.state.player.life, before);
++  assert.equal(g.state.player.mana.G, 0);
++}
++
++// 3. The non-active player is also emptied and burned at the same boundary.
++{
++  const g = freshGame();
++  const forest = add(g, 'ai', card('Forest'));
++  const beforePlayer = g.state.player.life;
++  const beforeAi = g.state.ai.life;
++  g.state.priorityHolder = 'player';
++  // Real facade dispatch: the AI taps its own land for mana in response.
++  g.dispatch('action', { action:'tapMana', data:{ permanent: forest, color:'G', controller:'ai' } }, 'ai');
++  g.state.ai.mana.U = 2;
++  g.turnManager.nextPhase();
++  assert.equal(g.state.player.life, beforePlayer);
++  assert.equal(g.state.ai.life, beforeAi - 3);
++  assert.deepEqual(g.state.ai.mana, { W:0,U:0,B:0,R:0,G:0,C:0 });
++}
++
++// 4. Mana does not survive main1 -> combatBegin.
++{
++  const g = freshGame();
++  g.state.player.mana = { W:0,U:0,B:0,R:0,G:4,C:0 };
++  g.state.ai.mana = { W:0,U:0,B:0,R:1,G:0,C:0 };
++  g.turnManager.nextPhase();
++  assert.equal(g.turnManager.phase, 'combatBegin');
++  assert.equal(Object.values(g.state.player.mana).reduce((a,b)=>a+b,0), 0);
++  assert.equal(Object.values(g.state.ai.mana).reduce((a,b)=>a+b,0), 0);
++}
++
++// 5. Mana burn to 0 or less life is immediately converted into a loss by SBA.
++{
++  const g = freshGame();
++  g.state.player.life = 2;
++  g.state.player.mana = { W:0,U:0,B:0,R:0,G:0,C:3 };
++  g.turnManager.nextPhase();
++  assert.equal(g.state.player.life, -1);
++  assert.equal(g.state.player.hasLost, true);
++}
++
++// 6. Existing turn/combat behavior remains intact: a newly entered creature
++// still cannot attack (the test uses the real TurnManager/CombatService path).
++{
++  const g = freshGame();
++  const creature = add(g, 'player', { name:'Test Creature', type:'Creature', power:2, toughness:2, color:['G'], keywords:[] });
++  creature.summoningSickness = true;
++  g.turnManager.gotoPhase('declareAttackers');
++  g.turnManager.activePlayer = 'player';
++  g.state.activePlayer = 'player';
++  assert.deepEqual(g.combat.toDeclareAttackers([creature], 'player').attackers, []);
++}
++
++// 7. Land mana is still legal immediately after entering: lands are not
++// affected by summoning sickness.
++{
++  const g = freshGame();
++  const forest = add(g, 'player', card('Forest'));
++  forest.summoningSickness = true;
++  g.dispatch('action', { action:'tapMana', data:{ permanent: forest, color:'G', controller:'player' } }, 'player');
++  assert.equal(g.state.player.mana.G, 1);
++  assert.equal(forest.tapped, true);
++}
++
++console.log('OK V12.53: mana burn authentique par frontière de phase/étape, deux joueurs, SBA et non-régressions terrain/combat.');

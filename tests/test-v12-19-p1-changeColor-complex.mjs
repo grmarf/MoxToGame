@@ -1,0 +1,10 @@
+import assert from 'assert';
+import { GameFacade } from '../src/core/game-facade.js';
+const game = new GameFacade(); game.connect();
+const perm = { uid: 'c1', name: 'Bear', type: 'Creature', power: 2, toughness: 2, controller: 'player', owner: 'player' };
+game.state.player.battlefield = [perm];
+const spell = { uid: 's1', name: 'Color Change', type: 'Instant', effect: { type: 'changeColor', color: 'U' }, owner: 'player' };
+game.stack.pushSpell(spell, 'player', { kind: 'permanent', uid: 'c1' });
+game.stack.resolveTop();
+assert.strictEqual(perm.chosenColor, 'U', 'changeColor doit modifier le permanent réel');
+console.log('P1 changeColor PASS');

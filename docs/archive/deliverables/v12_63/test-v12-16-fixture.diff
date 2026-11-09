@@ -1,0 +1,50 @@
+--- /tmp/orig63/tests/test-v12-16-cat-c-e2e.mjs	2026-09-04 06:33:14.000000000 +0000
++++ /mnt/data/work63/tests/test-v12-16-cat-c-e2e.mjs	2026-09-06 18:19:09.449602511 +0000
+@@ -242,6 +242,15 @@
+   game.state.ai.battlefield = [targetPerm];
+   game.state.player.battlefield = [card];
+   game.state.player.hand = [];
++  // V12.63: the database declares Pirate Ship's target as
++  // attackingOrBlockingCreature, so this regression must provide a real
++  // combat target. (Oracle text historically says creature or player; this
++  // DB discrepancy is documented in V12.63 and the DB itself is out of scope.)
++  targetPerm.summoningSickness = false;
++  game.state.activePlayer = 'ai';
++  game.turnManager.activePlayer = 'ai';
++  game.combat.confirmAttackers([targetPerm], 'ai');
++  game.state.priorityHolder = 'player';
+   game.dispatch('ACTIVATE_ABILITY', { permanent: card, abilityIndex: 0, ability: card.activated[0], target: { kind: 'permanent', perm: targetPerm, uid: targetPerm.uid } }, 'player');
+   resolveStack();
+   const resolved = game.state.ai.battlefield.find(p => p.uid === targetPerm.uid);
+@@ -259,6 +268,15 @@
+   game.state.ai.battlefield = [targetPerm];
+   game.state.player.battlefield = [card];
+   game.state.player.hand = [];
++  // V12.63: the database declares Pirate Ship's target as
++  // attackingOrBlockingCreature, so this regression must provide a real
++  // combat target. (Oracle text historically says creature or player; this
++  // DB discrepancy is documented in V12.63 and the DB itself is out of scope.)
++  targetPerm.summoningSickness = false;
++  game.state.activePlayer = 'ai';
++  game.turnManager.activePlayer = 'ai';
++  game.combat.confirmAttackers([targetPerm], 'ai');
++  game.state.priorityHolder = 'player';
+   game.dispatch('ACTIVATE_ABILITY', { permanent: card, abilityIndex: 0, ability: card.activated[0], target: { kind: 'permanent', perm: targetPerm, uid: targetPerm.uid } }, 'player');
+   resolveStack();
+   // Vérification que l'ability a résolu sans erreur (la stack est vide)
+@@ -276,6 +294,15 @@
+   game.state.ai.battlefield = [targetPerm];
+   game.state.player.battlefield = [card];
+   game.state.player.hand = [];
++  // V12.63: the database declares Pirate Ship's target as
++  // attackingOrBlockingCreature, so this regression must provide a real
++  // combat target. (Oracle text historically says creature or player; this
++  // DB discrepancy is documented in V12.63 and the DB itself is out of scope.)
++  targetPerm.summoningSickness = false;
++  game.state.activePlayer = 'ai';
++  game.turnManager.activePlayer = 'ai';
++  game.combat.confirmAttackers([targetPerm], 'ai');
++  game.state.priorityHolder = 'player';
+   game.dispatch('ACTIVATE_ABILITY', { permanent: card, abilityIndex: 0, ability: card.activated[0], target: { kind: 'permanent', perm: targetPerm, uid: targetPerm.uid } }, 'player');
+   resolveStack();
+   if (game.stack.size !== 0) throw new Error('C30 Prodigal Sorcerer: stack non vide après résolution');

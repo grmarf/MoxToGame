@@ -1,0 +1,11 @@
+import assert from 'assert';
+import { GameFacade } from '../src/core/game-facade.js';
+const game = new GameFacade(); game.connect();
+const state = game.state;
+state.player.battlefield = [{ uid: 'c1', name: 'Bear', type: 'Creature', power: 2, toughness: 0, owner: 'player' }];
+state.ai.battlefield = []; state.player.life = 20; state.ai.life = 20;
+state.activePlayer = 'player'; state.priorityHolder = 'player'; state.turnNumber = 1;
+game.stateBasedActions.check(state);
+assert.strictEqual(state.player.graveyard.length, 1, 'Bug 5: créature 0/0 au cimetière');
+assert.ok(state.player.graveyard[0].zoneChangeId, 'Bug 5: ZoneManager.move a assigné zoneChangeId');
+console.log('Bug 5 PASS');

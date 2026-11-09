@@ -1,0 +1,14 @@
+import assert from 'assert';
+import fs from 'fs';
+const ui=fs.readFileSync('./src/ui/game-ui.js','utf8');
+const facade=fs.readFileSync('./src/core/game-facade.js','utf8');
+const engine=fs.readFileSync('./src/core/native-engine.js','utf8');
+assert.ok(ui.includes("this.game.getAbilityOptions?.(p, 'player')"));
+assert.ok(ui.includes('this.#renderAbilitySelection(p)'));
+assert.ok(ui.includes('this.#activateSelectedAbility'));
+assert.ok(ui.includes('abilityPermanentUid'));
+assert.ok(ui.includes("this.dispatch('activateAbility'"));
+assert.ok(facade.includes("getAbilityOptions(permanent, controller = 'player')"));
+assert.ok(facade.includes('this.engine.getAbilityOptions(permanent, controller)'));
+assert.ok(engine.includes("getAbilities(p, controller).filter(a=>a.kind==='activated'"));
+console.log('V12.32 activated-ability UI PASS');

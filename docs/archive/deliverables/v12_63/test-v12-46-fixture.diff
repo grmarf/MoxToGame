@@ -1,0 +1,16 @@
+--- /tmp/orig63/tests/test-v12-46-cartes-batch2-simple.mjs	2026-09-04 11:27:20.000000000 +0000
++++ /mnt/data/work63/tests/test-v12-46-cartes-batch2-simple.mjs	2026-09-06 18:19:30.090250703 +0000
+@@ -127,7 +127,12 @@
+ }
+ // 17 Crimson Manticore — valid attacking/blocking creature target; source taps
+ {
+-  const g=setup(), p=add(g,'Crimson Manticore'), t=add(g,'Grizzly Bears','ai'); t.tapped=true; t.attacking=true; g.state.player.mana.R=1;
++  const g=setup(), p=add(g,'Crimson Manticore'), t=add(g,'Grizzly Bears','ai');
++  t.summoningSickness=false;
++  g.state.activePlayer='ai'; g.turnManager.activePlayer='ai';
++  g.combat.confirmAttackers([t], 'ai');
++  g.state.priorityHolder='player';
++  g.state.player.mana.R=1;
+   activate(g,p,0,{kind:'permanent',uid:t.uid}); assert.equal(t.damageMarked,1); assert.equal(p.tapped,true);
+   noMana(g); assert.throws(()=>g.action('activateAbility',{permanent:p,controller:'player',abilityIndex:0,target:{kind:'permanent',uid:t.uid}}));
+ }

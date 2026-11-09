@@ -1,0 +1,12 @@
+import { ReplacementService } from '../src/core/replacement-effects.js';
+const state={player:{life:4,battlefield:[{uid:'ali',name:'Ali from Cairo',controller:'player'}],prevention:[]},ai:{life:20,battlefield:[]}};
+const r=new ReplacementService({state:()=>state});
+let x=r.applyDamageToPlayer('player',7,{source:{name:'Bolt'},color:'R'});
+if(state.player.life!==1 || x.amount!==3 || !x.event.lifeLossReplaced) throw new Error(`Ali pipeline failed: ${JSON.stringify({state,x})}`);
+state.player.battlefield=[]; state.player.prevention=[{amount:2}]; state.player.life=20;
+x=r.applyDamageToPlayer('player',5,{source:{name:'Bolt'},color:'R'});
+if(state.player.life!==17 || x.amount!==3 || x.prevented!==2) throw new Error(`Prevention pipeline failed: ${JSON.stringify({state,x})}`);
+state.player.life=20; state.player.prevention=[];
+x=r.applyDamageToPlayer('player',5,{source:{name:'Loss spell'},color:'B',meta:{lifeLossOnly:true}});
+if(state.player.life!==15) throw new Error(`Damage application mismatch: ${JSON.stringify({state,x})}`);
+console.log('OK: V12.2 canonical player-damage pipeline — prevention + Ali + normal damage.');

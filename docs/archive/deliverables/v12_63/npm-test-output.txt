@@ -1,0 +1,379 @@
+
+> moxtogame@12.46.0 test
+> for f in tests/*.mjs; do node "$f" || exit 1; done
+
+Bear avant: {"uid":"test_bear","name":"Grizzly Bears","power":2,"toughness":2,"type":"Creature","controller":"player","owner":"player","tapped":false,"summoningSickness":false,"keywords":[],"color":["G"],"tempBuffs":[]}
+Stack: [{"effect":{"type":"pump","power":3,"toughness":3,"target":"creature"},"target":{"kind":"permanent","perm":{"uid":"test_bear","name":"Grizzly Bears","power":2,"toughness":2,"type":"Creature","controller":"player","owner":"player","tapped":false,"summoningSickness":false,"keywords":[],"color":["G"],"tempBuffs":[]}}}]
+Bear après: {"uid":"test_bear","name":"Grizzly Bears","power":2,"toughness":2,"type":"Creature","controller":"player","owner":"player","tapped":false,"summoningSickness":false,"keywords":[],"color":["G"],"tempBuffs":[{"power":3,"toughness":3}]}
+Battlefield: 1
+Avant cast: battlefield= 1 bear= "test_bear"
+Après cast: stack= 1 priority= ai
+Stack item target: {"kind":"permanent","perm":{"uid":"test_bear","name":"Grizzly Bears","power":2,"toughness":2,"type":"Creature","controller":"player","owner":"player","tapped":false,"summoningSickness":false,"keywords":[],"color":["G"],"tempBuffs":[]}}
+Après pass AI: stack= 1 priority= player
+Après pass player: stack= 0 priority= player
+Après resolve: battlefield= 1
+Bear après: {"uid":"test_bear","name":"Grizzly Bears","power":2,"toughness":2,"type":"Creature","controller":"player","owner":"player","tapped":false,"summoningSickness":false,"keywords":[],"color":["G"],"tempBuffs":[{"power":3,"toughness":3}]}
+Terrains IA joués : 1
+Priorité après action IA : player
+OK : contrôleur IA V12 — action réelle et priorité cohérente.
+Cible choisie par pickAiTarget() : Forte
+OK : pickAiTarget() vise bien la menace adverse la plus forte pour un effet de retrait.
+PV joueur avant : 20
+Phase après déclaration : declareBlockers | combat.phase : declareBlockers
+Phase : declareBlockers
+[dégâts] 3 à player par Testeur Direct
+Phase : combatDamage
+PV joueur après : 17
+OK : les dégâts de combat sont bien appliqués (20 -> 17).
+[playerLost] player (zeroOrLessLife)
+player.hasLost = true
+Actions IA dispatchées après la défaite du joueur : 0
+OK : la partie est bien terminée et l'IA ne fait plus rien.
+Main de départ (joueur) : 7 cartes
+Bibliothèque (joueur) : 53 cartes
+Après 1 mulligan — main : 7 cartes | compteur : 1
+Après confirmation — main : 6 | bibliothèque : 54
+OK : le mulligan (repioche + renvoi au fond) fonctionne correctement.
+Pas de bug: le bouclier de régénération a bien été respecté par destroy direct.
+Si ce message s'affiche, pas de régression (ne devrait pas arriver en l'état actuel du code).
+OK: aura correctement envoyée au cimetière quand sa cible meurt (fizzle SBA respecté)
+OK: V12.1 replacement pipeline — prevention + Ali.
+OK: V12.1 layers + copy characteristics.
+OK: V12.1 zone/object identity.
+OK: R-DET-01 — RNG/Clock déterministe avec graine fixe, non-déterministe par défaut.
+OK: R-DET-01b — createToken (via uuid) et discard aléatoire sont déterministes avec graine fixe.
+OK: R-TEST-01 — flying/reach restrictions + SBA avec créatures protégées.
+OK: R-TEST-01b — mustBeBlocked/isMandatoryBlocker + protection multiple couleurs.
+OK: Catégorie B — 27 cartes avec keywords vérifiés et pris en compte par le moteur.
+OK: Catégorie B — 35 cartes (27+8) vérifiées.
+OK: Catégorie C — 20 cartes du lot 1 vérifiées.
+OK E2E C1: Lightning Bolt 20 -> 17
+OK E2E C2: Giant Growth 2/2 -> 5/5 (temporaire)
+OK E2E C3: Healing Salve 10 -> 13
+OK E2E C4: Dark Ritual structure
+OK E2E C5: Shatter détruit artifact
+OK E2E C6: Terror détruit creature
+OK E2E C7: Sinkhole détruit land
+OK E2E C8: Disenchant détruit artifact
+OK E2E C20: Unsummon bounce creature
+OK E2E C9: Wrath of God board wipe
+OK E2E C10: Armageddon détruit tous les terrains
+OK E2E C11: Counterspell structure
+OK E2E C12: Icy Manipulator engage cible
+OK E2E C14: Howling Mine trigger structure
+OK E2E C15: Bad Moon static structure
+OK E2E C16: Crusade static structure
+OK E2E C17: Abu Ja'far trigger structure
+OK E2E C18: Ancestral Recall structure
+OK E2E C19: Hymn to Tourach structure
+
+OK E2E: 20 cartes C — tests bout-en-bout complétés.
+OK Lot2-B: Bog Wraith swampwalk
+OK Lot2-B: Elvish Archers reach+firstStrike
+OK Lot2-B: Giant Spider defender+reach
+OK Lot2-C21: Blue Elemental Blast structure
+OK Lot2-C22: Red Elemental Blast structure
+OK Lot2-C23: Holy Strength structure
+OK Lot2-C24: Unholy Strength structure
+OK Lot2-C25: Samite Healer structure
+OK Lot2-C26: Orcish Artillery structure
+OK Lot2-C27: Orcish Oriflamme structure
+OK Lot2-C28: Flight structure
+OK Lot2-C29: Jump structure
+OK Lot2-C30: Lance structure
+OK Lot2-C31: Firebreathing structure
+OK Lot2-C32: Dingus Egg structure
+OK Lot2-A: Savannah Lions functional
+
+OK Lot2: 20 cartes — 3 B + 13 C + 1 A vérifiées.
+PV IA avant: 20
+Stack size after cast: 1
+Priority holder: ai
+PV IA après: 17
+Stack size after resolve: 0
+OK E2E: Lightning Bolt 20 -> 17
+OK E2E C2: Giant Growth 2/2 -> 5/5 (temporaire)
+OK E2E C5: Shatter détruit artifact
+OK E2E C6: Terror détruit creature
+OK E2E C7: Sinkhole détruit land
+OK E2E C12: Icy Manipulator engage cible
+OK E2E C20: Unsummon bounce creature
+OK E2E C21: Stone Rain détruit land
+OK E2E C22: Ice Storm détruit land
+OK E2E C23: Weakness -2/-1 appliqué (permanentAura)
+OK E2E C24: Blessing +3/+3 appliqué (permanentAura)
+OK E2E C25: Giant Strength +2/+2 appliqué (permanentAura)
+OK E2E C26: Stream of Life 10 -> 15 (X=5)
+OK E2E C27: Psionic Blast 20 -> 16 + gain 4 PV
+OK E2E C28: Rod of Ruin 1 blessure appliquée
+OK E2E C29: Pirate Ship ability résolue
+OK E2E C30: Prodigal Sorcerer ability résolue
+OK E2E C31: Swords to Plowshares exile + 2 PV
+OK E2E C32: Hurricane 2 dégâts flying + joueur
+OK E2E C33: Raise Dead ramène créature du cimetière
+OK E2E C34: Regrowth ramène land du cimetière
+OK E2E C35: Copper Tablet trigger configuré (résolution E2E non supportée par le moteur)
+OK E2E C36: Howl from Beyond +X/+0 appliqué
+OK E2E C37: Fireball X=3 20 -> 17
+OK E2E C38: Mind Twist défausse 2 cartes
+OK E2E C39: Earthbind retire le vol
+OK E2E C40: Flashfires détruit uniquement les Plains
+
+OK E2E V12.16: 40 cartes C — tests bout-en-bout complétés.
+M2 MUTATION OK: Healing Salve amount=5 -> PV=15
+M2 RESTAURATION OK: Healing Salve 10 -> 13
+M5 MUTATION OK: Icy Manipulator tap=false ne engage pas
+M5 RESTAURATION OK: Icy Manipulator engage cible
+
+OK MUTATIONS V12.16: M2 + M5 vérifiés.
+OK V12.17: sourceSelf résout l’identité stable de la source.
+OK V12.17: remplacement source matche par identité stable.
+OK V12.17: draw via ZoneManager conserve la carte et son identité.
+Bug 5 PASS
+Bug 6 PASS
+Bug 7 PASS
+Bug 8 PASS
+Bug 9 PASS
+Bug 10 PASS
+Bug 11 PASS
+Bug 12 PASS
+Bug 13 PASS
+Bug 14 PASS
+Bug 15 PASS
+Bug 16 PASS
+Bug 17 PASS
+Bug 18 PASS
+Bug 19 PASS
+Bug 20 PASS
+Bug 21 PASS
+P1 addProtection PASS
+P1 changeColor PASS
+P1 extended unique PASS
+P1 fling PASS
+P1 gainLife PASS
+P1 removeKeyword PASS
+P1 reverseDamage PASS
+OK: V12.2 APNAP trigger ordering + per-controller choice.
+OK: V12.2 copy values feed layer 1 and later layers deterministically.
+OK: V12.2 canonical player-damage pipeline — prevention + Ali + normal damage.
+AI service methods: [ 'getState' ]
+PASS: test de scénario préparé
+SBA calls: 2
+Total hits by DoubleStriker: 1 amounts: [ 2 ]
+PASS: créature sans double strike ni first strike n'inflige pas la seconde salve
+stack.combat exists: true
+stack.combat.combat exists: true
+stack.combat.combat.attackers: [ 'c1', 'c2' ]
+effects.has(pumpAttacking): true
+Results: {
+  c1_attacking: true,
+  c2_attacking: true,
+  c3_non_attacking: false,
+  ai1_opponent: false
+}
+PASS: pumpAttacking cible uniquement les attaquants du combat courant
+Excess trample event: {
+  type: 'combatDamageToPlayer',
+  source: {
+    uid: 'atk',
+    name: 'Trampler',
+    type: 'Creature',
+    power: 5,
+    toughness: 5,
+    tapped: true,
+    keywords: [ 'trample' ],
+    damageMarked: 0,
+    tempBuffs: [],
+    auraBuffs: [],
+    _firstStrikeDealt: false
+  },
+  sourceId: 'atk',
+  target: 'ai',
+  amount: 3,
+  damageKind: 'combat',
+  excess: true
+}
+blk1 damage event: undefined
+blk2 damage event: undefined
+PASS: trample assigne correctement le surplus indépendamment de la prévention
+threw: true | mana unchanged: true
+Simple pay result: {
+  cost: {
+    mana: '{W}',
+    tap: true,
+    untap: false,
+    life: 0,
+    sacrifice: null,
+    discard: 0,
+    exile: null,
+    returnToHand: null,
+    pay: null,
+    choose: null
+  },
+  xValue: 0,
+  sacrifice: null,
+  discard: [],
+  exile: null,
+  returnToHand: null
+} | creature tapped: true | mana W: 1
+PASS: cost system conserve la cohérence atomique en usage canonique
+Emit log: [ 'A', 'C' ]
+PASS: désinscription pendant emit ne corrompt pas l'itération
+PT avant changement: 2 2
+PT après changement: 1 1
+PASS: l'effet continu relit le contrôleur dynamiquement
+maxIterations: 16
+PASS: replacement service a une borne d'itération
+Aura in graveyard attachedTo: undefined
+PASS: attachedTo nettoyé ou objet recréé sans référence
+OK V12.21: Lot C4 — 20 cartes, contrôle croisé validé, cas nominal + non-régression vérifiés.
+OK V12.21: Lot C5 — 20 cartes, contrôle croisé validé, cas nominal + non-régression vérifiés.
+PASS: Desertwalk interdit le blocage lorsqu’un Desert est contrôlé.
+PASS: rampage2 avec un seul bloqueur ne donne aucun bonus.
+PASS: rampage2 avec trois bloqueurs donne +4/+4.
+PASS: le bonus de rampage disparaît au cleanup de fin de tour.
+V12.25 rampage/desertwalk: PASS
+PASS: 702.22h : Benalish Hero (non déclaré bloqué) devient bloqué par Hill Giant via le groupe
+PASS: 702.22k : Benalish Hero reçoit exactement 1 blessure (pas 3)
+PASS: 702.22k : Grizzly Bears reçoit exactement 2 blessures (pas 3)
+PASS: 702.22k : répartition dont la somme (2) ne correspond pas à la force effective de Hill Giant (3) -> erreur (Regroupement : la somme de la répartition des blessures de Hill Giant (2) ne correspond pas à sa force effective (3).)
+PASS: 702.22k : bloqueur partagé sans blockerDamageSplit fourni -> erreur (le moteur ne devine pas) (Regroupement : le bloqueur Hill Giant bloque 2 attaquants ; la répartition de ses blessures doit être fournie dans blockerDamageSplit.)
+PASS: 702.22c : un groupe sans aucune créature banding n'est pas un vrai groupe -> erreur (Regroupement : un groupe ne peut contenir qu’au maximum une créature sans le mot-clé banding.)
+PASS: 702.22c : un groupe d'une seule créature SANS banding -> erreur (correctif du point 2 signalé par Qwen) (Regroupement : un groupe doit contenir au moins une créature avec le mot-clé banding (702.22c).)
+PASS: 702.22j : Benalish Hero (1/1, en tête d'ordre) reçoit 1 blessure létale
+PASS: 702.22j : Grizzly Bears reçoit les 2 blessures restantes
+PASS: 702.22j : l'ordre des blessures suit l'ordre du tableau de bloqueurs fourni (aucun nouveau code nécessaire pour cette règle)
+PASS: Non-régression : un bloqueur unique reçoit toujours la pleine force de son attaquant sans paramètre supplémentaire
+PASS: Non-régression : un attaquant unique reçoit toujours la pleine force de son bloqueur sans paramètre supplémentaire
+V12.26 banding: PASS
+OK: V12.27 card playability predicate — certified statuses only.
+OK: V12.28 deckbuilder uses only the certified playable pool.
+OK: V12.29 deck validation enforces the playable startup boundary.
+OK: V12.3.1 database — 985 logical cards, unique/continuous IDs, no duplicate names.
+OK: V12.3 layer dependencies inferred from real characteristics.
+OK: V12.3 multiple replacements -- prevention ordering + Ali pipeline.
+OK: V12.6 multiple replacements -- player choice + one-shot replacement consumption.
+V12.30 targeting helpers: PASS
+OK V12.31 ChoiceService — pending, validation, stable object options, resolve/clear events.
+V12.32 activated-ability UI PASS
+OK: V12.33 UI expose explicit priority ownership and disables player controls when AI owns priority.
+OK: phases sans priorité traversées automatiquement jusqu’à la prochaine fenêtre de décision.
+OK: V12.35 getValidBlockers respecte l’évasion par attaquant précis (fix UI de blocage).
+OK: R-TURN-01/R-TURN-02 phase entry actions and combat phase alignment.
+OK: empty-stack double-pass preserves priority invariants across phase transitions.
+OK: v12.39 combat phase transitions stay aligned; blocker declaration does not resolve damage early.
+OK: V12.4 card coverage vs card-set-manifest.js —
+  LEB (Limited Edition Beta): 287/287 [OK]
+  ARN (Arabian Nights): 77/77 [OK]
+  LEG (Legends): 310/310 [OK]
+  DRK (The Dark): 119/119 [OK]
+  FEM (Fallen Empires): 102/102 [OK]
+  ATQ (Antiquities): 85/85 [OK]
+OK: V12.4 Legends lot 1 — 310/150 LEG cards, 985 logical cards.
+OK: V12.4 Legends lot 2 — 310/150 LEG cards, 985 logical cards.
+OK: V12.4 Legends lot 3 — 310/at least 150 LEG cards, 985 logical cards.
+OK: V12.4 Legends lot 4 — 310/200 LEG cards, 985 logical cards.
+OK: V12.4 Legends lot 5 — 310/310 LEG cards, 985 logical cards.
+OK: V12.4 Legends lot 6 — 310/310 LEG cards, 985 logical cards.
+OK: V12.4 Legends lot 7 (final) — 310/310 LEG cards, 985 logical cards. Legends coverage complete.
+OK: cleanup, fin de tour et transition vers le nouveau tour sont cohérents.
+OK: V12.41 ChoiceService continuation — resolution pauses, UI choice resolves, continuation resumes exactly once.
+OK: V12.42 searchLibrary continuation — real effect pauses, resolves a runtime card by UID, moves it to hand and finalizes once.
+OK: V12.43 chooseColor continuation — real chooseColor effect pauses, rejects invalid values, resumes with W/U/B/R/G, and finalizes once.
+OK: V12.44 upkeep pay-or effects and chooseNumber scenarios.
+OK V12.45: activated mana choice + fixed mana + Circle of Protection Black E2E
+OK: Mind Bomb — choix indépendants par joueur, défausse et blessures correctes.
+OK: Mind Bomb — refuser de défausser inflige le maximum de blessures.
+OK: Mind Bomb — un choix hors bornes est rejeté par ChoiceService.
+OK: sacrificeOrDamage (Lord of the Pit) — non-régression, override token-historical inchangé.
+OK: sacrificeOrDamage isolé — fonctionne sans dépendre de ctx.api.decisions (inexistant).
+OK: StackController#resumeChoice — suspension imbriquée gérée sans finalisation prématurée ni doublon.
+OK: V12.45 Mind Bomb + nettoyage sacrificeOrDamage + correction suspension imbriquée.
+OK V12.46: batch 2 — 16 cartes certifiées, 18 capacités testées E2E, cas limites inclus.
+OK V12.47: batch 3 — 20 cartes certifiées et testées E2E.
+OK V12.48: 3 correctifs moteur + 6 régénérations self + Circle Artifacts + non-régression cible explicite.
+OK V12.49: limites d’activation par tour — Vampire Bats 2, Fire Drake 1, reset de tour et non-régression certifiés E2E.
+OK: V12.5 edition audit — 985 logical cards, retagging and dedup verified.
+OK V12.50: batch 4 — Timetwister certifiée E2E; 20 candidats audités, autres laissés de côté pour lacunes de couverture existante.
+OK V12.51: maladie d’invocation — {T} créature, reset, haste, haste effective, terrains et attaque non-régressés.
+OK V12.52: protection re-checkée au moment des dégâts de combat + non-combat + non-régression attaque.
+OK V12.53: mana burn authentique par frontière de phase/étape, deux joueurs, SBA et non-régressions terrain/combat.
+OK V12.54: régénération vs endurance <= 0 — 704.5f séparé de 704.5g, non-régression dégâts létaux.
+OK V12.55: generic mana abilities bypass stack; tapAbility and ordinary ability regressions pass.
+OK V12.56.1: Control Magic revert
+OK V12.56.2: Steal Artifact revert
+OK V12.56.3: stealCreatureUntilEnd remains separate
+OK V12.56.4: stolen creature dies in owner graveyard
+OK V12.56.5: stolen creature can attack under new controller
+OK V12.57.1: checkStateBasedDeaths() applique réellement les SBA immédiatement
+OK V12.57.2: non-régression -- pas de mort injustifiée sans dégâts marqués
+OK V12.58.1: check() traite une cascade à deux vagues en un seul appel externe.
+OK V12.58.2: non-régression -- pas de cascade, pas de mort injustifiée.
+OK V12.58.3: check() se stabilise rapidement (pas de boucle infinie).
+OK V12.59.1: Hypnotic Specter se déclenche (condition sans champ kind), et seulement contre un joueur.
+OK V12.59.2: Warp Artifact se déclenche exactement sur le bon entretien (condition sans champ kind).
+OK V12.59.3: Creature Bond se déclenche uniquement pour SA créature enchantée (condition sans champ kind).
+OK V12.59.4: Vesuvan Doppelganger -- non-régression, controllerUpkeep:true fonctionne toujours.
+OK V12.60.1: Creature Bond ne pioche plus immédiatement au lancer.
+OK V12.60.2: le mécanisme legacy ne pioche plus à tort sur la mort d'une autre créature.
+OK V12.60.3: exactement une pioche quand la bonne créature meurt (non-régression).
+OK V12.60 BUG-02: damageAndGain passe par ReplacementService et le gain suit les dégâts réellement infligés
+OK V12.61 — coût de vie exactement à 0 autorisé ; insuffisance toujours refusée.
+OK V12.62.1: sacrifice:"self" seul — source sacrifiée par uid.
+OK V12.62.2: sacrifice:"self" avec autre permanent — source sacrifiée, autre permanent conservé.
+OK: V12.62 sacrifice:"self" — deux scénarios E2E validés.
+OK V12.63: inventaire effect.target exhaustif: anyCard, anyPermanent, anyTarget, artifact, artifactOrEnchantment, attackingCreature, creature, creatureCardInGraveyard, creatureCardInOwnGraveyard, enchantedCreature, land, opponent, opponentsCreatures, permanent, permanentOrSpell, player, self, spellOnStack
+OK V12.63: restrictions creature/land/artifact/anyPermanent/permanent/attackingCreature/attackingOrBlockingCreature validées.
+OK V12.63: régression globale — 39 cartes implemented/functional vérifiées individuellement.
+  - Death Ward [creature]
+  - Disenchant [artifactOrEnchantment]
+  - Healing Salve [self]
+  - Holy Strength [creature]
+  - Lance [creature]
+  - Swords to Plowshares [creature]
+  - White Ward [creature]
+  - Ancestral Recall [self]
+  - Blue Elemental Blast [creature]
+  - Control Magic [creature]
+  - Counterspell [spellOnStack]
+  - Flight [creature]
+  - Invisibility [enchantedCreature]
+  - Jump [creature]
+  - Mana Short [opponent]
+  - Psionic Blast [anyTarget]
+  - Steal Artifact [artifact]
+  - Twiddle [anyPermanent]
+  - Unsummon [creature]
+  - Demonic Tutor [anyCard]
+  - Evil Presence [land]
+  - Fear [creature]
+  - Mind Twist [opponent]
+  - Paralyze [creature]
+  - Raise Dead [creatureCardInOwnGraveyard]
+  - Sinkhole [land]
+  - Terror [creature]
+  - Unholy Strength [creature]
+  - Lightning Bolt [anyTarget]
+  - Red Elemental Blast [creature]
+  - Shatter [artifact]
+  - Stone Rain [land]
+  - Tunnel [creature]
+  - Giant Growth [creature]
+  - Ice Storm [land]
+  - Stream of Life [player]
+  - Web [creature]
+  - Chain Lightning [anyTarget]
+  - Word of Binding [creature]
+OK: Phase E — menace et unblockable testés.
+OK: R-EVT-01 — state injecté automatiquement, blackViseLands s'exécute.
+OK: R-SBA-01 — planeswalker + legende demandent un choix au contrôleur.
+OK: R-ZONE-01 — changement de zone via SBA génère zoneHistory et nouvelle identité.
+OK: R-613-01 layer 4 dependency resolves A before B.
+OK: R-613-01 layer 6 dependency resolves A before B.
+OK: R-613-01 same-layer color dependency resolves A before B.
+OK: R-613-02 copyExcept preserves the copier power.
+OK: R-613 layer 7 preserves 7a -> 7b -> 7c -> 7d order.
+OK: CostService V12 — coûts colorés respectés par le moteur et l’IA.
+Avant cast: { stack: 0, priority: 'player' }
+Après cast: { stack: 1, priority: 'ai' }
+OK: Priority/Stack V12 — cast → réponse → double pass → résolution.

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MoxToGame V11.1</title>
+<link rel="stylesheet" href="src/ui/styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🃏 MoxToGame — V11.1</h1>
+      <div class="subtitle">Moteur natif · Joueur vs IA</div>
+    </div>
+
+    <div class="main-content">
+
+      <!-- ─── Colonne gauche : construction du deck ─── -->
+      <div class="sidebar" id="pre-game">
+        <div class="section-title">Catalogue de cartes</div>
+        <input type="text" id="card-search" class="card-search" placeholder="Rechercher une carte...">
+        <label class="hint" style="display:block; margin:6px 0;"><input type="checkbox" id="playable-only"> Afficher uniquement les cartes jouables</label>
+        <div id="card-list" class="card-list"></div>
+
+        <div class="section-title">Votre deck</div>
+        <div id="deck-count" class="hint">Cartes : 0/60</div>
+        <div id="current-deck-list" class="zone-content"></div>
+
+        <div style="display:flex; gap:6px; margin-top:10px;">
+          <button id="add-random" class="btn btn-info btn-small">🎲 Deck aléatoire</button>
+          <button id="clear-deck" class="btn btn-danger btn-small">🗑️ Vider</button>
+        </div>
+        <button id="start-game" class="btn btn-primary" style="width:100%; margin-top:10px;">▶️ Lancer la partie</button>
+
+        <div class="hint" style="margin-top:10px;">
+          Construisez un deck de 40 à 60 cartes, ou cliquez sur
+          "Deck aléatoire" pour en générer un automatiquement, puis lancez la partie.
+          L'IA reçoit un deck équivalent.
+        </div>
+      </div>
+
+      <!-- ─── Écran de mulligan (V11.1) ─── -->
+      <div class="sidebar hidden" id="mulligan-screen"></div>
+
+      <!-- ─── Colonne droite : plateau de jeu ─── -->
+      <div class="game-area hidden" id="game-board">
+
+        <div id="turn-ui"></div>
+
+        <div id="phase-indicator" class="hint"></div>
+
+        <div id="combat-panel" class="notice hidden"></div>
+
+        <div class="player-row">
+          <div>🤖 IA — <span class="life-total" id="ai-life">20</span> PV</div>
+          <div class="hint">
+            Main : <span id="ai-hand-count">0</span> ·
+            Bibliothèque : <span id="ai-lib-count">0</span> ·
+            Mana : <span id="ai-mana-display">0</span>
+          </div>
+        </div>
+        <div class="battlefield">
+          <h3>Champ de bataille — IA</h3>
+          <div id="ai-battlefield"></div>
+        </div>
+        <div class="battlefield">
+          <h3>Main — IA</h3>
+          <div id="ai-hand"></div>
+        </div>
+
+        <div class="stack-zone active">
+          <div class="section-title">Pile</div>
+          <div id="stack-items"></div>
+          <button id="resolve-stack" class="btn btn-info btn-small" disabled>↔️ Passer la priorité</button>
+        </div>
+
+        <div class="battlefield">
+          <h3>Champ de bataille — Vous</h3>
+          <div id="player-battlefield"></div>
+        </div>
+        <div class="battlefield">
+          <h3>Votre main</h3>
+          <div id="player-hand"></div>
+        </div>
+
+        <div class="player-row">
+          <div>👤 Vous — <span class="life-total" id="player-life">20</span> PV</div>
+          <div class="hint">
+            Main : <span id="player-hand-count">0</span> ·
+            Bibliothèque : <span id="player-lib-count">0</span> ·
+            Mana : <span id="player-mana-display">0</span>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:6px; margin:10px 0;">
+          <button id="next-phase" class="btn btn-primary">⏭️ Phase suivante</button>
+          <button id="concede" class="btn btn-danger">🏳️ Abandonner</button>
+        </div>
+
+        <div class="section-title">Journal</div>
+        <div id="game-log" class="game-log"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="modal" id="game-over-modal"></div>
+
+  <script type="module" src="src/app/bootstrap.js"></script>
+</body>
+</html>

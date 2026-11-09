@@ -1,0 +1,10 @@
+--- /mnt/data/orig_v1249/src/data/cards-database.js	2026-09-04 06:42:07.000000000 +0000
++++ src/data/cards-database.js	2026-09-04 10:03:51.377018330 +0000
+@@ -2356,6 +2356,7 @@
+     "effect": {
+       "type": "wheel"
+     },
++    "effectStatus": "implemented",
+     "sets": [
+       "LEB"
+     ],

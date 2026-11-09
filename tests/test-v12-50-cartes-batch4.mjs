@@ -1,0 +1,66 @@
+import assert from 'node:assert/strict';
+import { GameFacade } from '../src/core/game-facade.js';
+import CARDS from '../src/data/cards-database.js';
+
+const card = name => CARDS.find(c => c.name === name);
+const setup = () => {
+  const g = new GameFacade().connect();
+  g.turnManager.gotoPhase('main1');
+  g.turnManager.activePlayer = 'player';
+  g.state.phase = 'main1';
+  g.state.activePlayer = 'player';
+  g.state.priorityHolder = 'player';
+  g.state.player.mana = {W:20,U:20,B:20,R:20,G:20,C:20};
+  g.state.ai.mana = {W:20,U:20,B:20,R:20,G:20,C:20};
+  return g;
+};
+const resolve = g => g.dispatch('resolveStack', {}, 'player');
+
+// Timetwister — full real dispatch: both players shuffle hand+graveyard into
+// library, draw exactly seven, and the spell itself reaches its graveyard only
+// after resolution (so it is not accidentally included in its own shuffle).
+{
+  const g = setup();
+  const twister = card('Timetwister');
+  g.state.player.hand = [twister, {name:'P-hand-1'}, {name:'P-hand-2'}];
+  g.state.player.graveyard = [{name:'P-grave-1'}];
+  g.state.ai.hand = [{name:'A-hand-1'}];
+  g.state.ai.graveyard = [{name:'A-grave-1'}, {name:'A-grave-2'}];
+  g.state.player.library = Array.from({length:10}, (_, i) => ({name:`P-lib-${i}`}));
+  g.state.ai.library = Array.from({length:10}, (_, i) => ({name:`A-lib-${i}`}));
+
+  g.dispatch('CAST_SPELL', {card:twister, target:null, xValue:0}, 'player');
+  assert.equal(g.stack.items.length, 1);
+  resolve(g);
+
+  assert.equal(g.state.player.hand.length, 7);
+  assert.equal(g.state.ai.hand.length, 7);
+  assert.equal(g.state.player.library.length, 6);
+  assert.equal(g.state.ai.library.length, 6);
+  assert.equal(g.state.player.graveyard.filter(c => c.name !== 'Timetwister').length, 0);
+  assert.equal(g.state.ai.graveyard.length, 0);
+  assert.equal(g.state.player.graveyard.some(c => c.name === 'Timetwister'), true);
+  assert.equal(g.stack.items.length, 0);
+}
+
+// Boundary: no cards in either hand/graveyard still gives each player seven
+// cards from the library when enough cards are available.
+{
+  const g = setup();
+  const twister = card('Timetwister');
+  g.state.player.hand = [twister];
+  g.state.player.graveyard = [];
+  g.state.ai.hand = [];
+  g.state.ai.graveyard = [];
+  g.state.player.library = Array.from({length:7}, (_, i) => ({name:`P-${i}`}));
+  g.state.ai.library = Array.from({length:7}, (_, i) => ({name:`A-${i}`}));
+  g.dispatch('CAST_SPELL', {card:twister, target:null, xValue:0}, 'player');
+  resolve(g);
+  assert.equal(g.state.player.hand.length, 7);
+  assert.equal(g.state.ai.hand.length, 7);
+  assert.equal(g.state.player.library.length, 0);
+  assert.equal(g.state.ai.library.length, 0);
+}
+
+assert.equal(card('Timetwister').effectStatus, 'implemented');
+console.log('OK V12.50: batch 4 — Timetwister certifiée E2E; 20 candidats audités, autres laissés de côté pour lacunes de couverture existante.');

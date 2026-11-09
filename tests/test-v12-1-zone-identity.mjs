@@ -1,0 +1,11 @@
+import { ZoneManager } from '../src/core/zone-manager.js';
+const state={turnNumber:4,player:{library:[],hand:[],battlefield:[],graveyard:[],exile:[]},ai:{library:[],hand:[],battlefield:[],graveyard:[],exile:[]}};
+const z=new ZoneManager({state:()=>state});
+const p={uid:'u0',objectId:'o0',owner:'player',controller:'player',zone:'battlefield',name:'Test',type:'Creature'};
+state.player.battlefield.push(p);
+const g=z.moveToGraveyard(p);
+if(g.uid==='u0'||g.objectId==='o0'||g.previousUid!=='u0'||g.previousObjectId!=='o0') throw new Error('Zone change did not create a new game object identity.');
+if(!g.zoneChangeId || !Array.isArray(g.zoneHistory) || g.zoneHistory.length!==1) throw new Error('Zone history missing.');
+if(z.find('u0')!==null) throw new Error('Old UID still resolves after zone change.');
+if(z.find(g.uid)?.object!==g) throw new Error('New UID does not resolve.');
+console.log('OK: V12.1 zone/object identity.');

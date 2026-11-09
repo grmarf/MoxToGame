@@ -1,0 +1,10 @@
+import { ReplacementService } from '../src/core/replacement-effects.js';
+const state={player:{life:3,battlefield:[],prevention:[{amount:2}]},ai:{life:20,battlefield:[]}};
+const r=new ReplacementService({state:()=>state});
+let e=r.replaceEvent({kind:'damage',targetType:'player',targetSide:'player',amount:5,source:{name:'Test'}});
+if(e.event.amount!==3 || e.event.prevented!==2) throw new Error(`Expected all 5 damage prevented, got ${JSON.stringify(e.event)}`);
+state.player.prevention=[];
+state.player.battlefield.push({uid:'ali',name:'Ali from Cairo',controller:'player'});
+e=r.replaceEvent({kind:'damage',targetType:'player',targetSide:'player',amount:5,source:{name:'Test'}});
+if(e.event.amount!==2 || e.event.prevented!==3 || !e.event.lifeLossReplaced) throw new Error(`Ali replacement failed: ${JSON.stringify(e.event)}`);
+console.log('OK: V12.1 replacement pipeline — prevention + Ali.');
